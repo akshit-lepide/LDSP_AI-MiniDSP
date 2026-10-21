@@ -1,0 +1,300 @@
+@import "tailwindcss";
+
+/* Layout wrappers only: components come from Lepidus, values from design tokens. */
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--color-background-page);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-primary);
+  font-size: var(--typography-body-md-fontSize);
+  line-height: var(--typography-body-md-lineHeight);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- Sign-in ---------- */
+
+.boot-screen,
+.auth-page {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: var(--space-8);
+}
+
+.auth-page {
+  background:
+    linear-gradient(118deg, transparent 0 62%, var(--color-background-subtle) 62% 100%),
+    var(--color-background-page);
+}
+
+.auth-panel {
+  width: min(100%, 460px);
+  padding: var(--space-10);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-card);
+  background: var(--color-background-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.auth-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.auth-brand__text {
+  color: var(--color-text-primary);
+  font-size: var(--typography-heading-h4-fontSize);
+}
+
+.eyebrow {
+  margin: var(--space-9) 0 var(--space-3);
+  color: var(--color-text-brand);
+  font-size: var(--typography-label-md-fontSize);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.auth-panel h1 {
+  margin: 0;
+  font-size: var(--typography-heading-h3-fontSize);
+  line-height: var(--typography-heading-h3-lineHeight);
+}
+
+.auth-copy {
+  margin: var(--space-4) 0 var(--space-8);
+  color: var(--color-text-secondary);
+}
+
+.auth-form {
+  display: grid;
+  gap: var(--space-7);
+  margin-bottom: var(--space-6);
+}
+
+.auth-switch {
+  margin: var(--space-5) 0 0;
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.synthetic-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  margin: var(--space-9) 0 0;
+  color: var(--color-text-secondary);
+  font-size: var(--typography-body-sm-fontSize);
+}
+
+/* ---------- App shell ---------- */
+
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.app-rail {
+  position: sticky;
+  top: 0;
+  flex: 0 0 100px;
+  height: 100vh;
+}
+
+.app-main {
+  display: grid;
+  align-content: start;
+  gap: var(--space-8);
+  flex: 1;
+  min-width: 0;
+  width: min(100%, 1480px);
+  margin-inline: auto;
+  padding: var(--space-9);
+}
+
+.app-topline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+}
+
+.app-account {
+  max-width: 32ch;
+  overflow: hidden;
+  color: var(--color-text-secondary);
+  font-size: var(--typography-body-sm-fontSize);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.page-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-6);
+}
+
+.page-head h1 {
+  margin: 0;
+  font-size: var(--typography-heading-h2-fontSize);
+  line-height: var(--typography-heading-h2-lineHeight);
+}
+
+.page-head p {
+  margin: var(--space-3) 0 0;
+  color: var(--color-text-secondary);
+}
+
+.page-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-5);
+  margin-top: var(--space-5);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--color-border-default);
+  color: var(--color-text-secondary);
+  font-size: var(--typography-body-sm-fontSize);
+}
+
+/* ---------- Dashboard ---------- */
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-6);
+}
+
+.metric-card {
+  min-width: 0;
+}
+
+.metric-value {
+  display: block;
+  color: var(--color-text-brand);
+  font-size: var(--typography-heading-h1-fontSize);
+  line-height: var(--typography-heading-h1-lineHeight);
+  font-weight: 700;
+}
+
+.metric-foot {
+  display: block;
+  margin-top: var(--space-2);
+  color: var(--color-text-secondary);
+  font-size: var(--typography-body-sm-fontSize);
+}
+
+/* ---------- Upload ---------- */
+
+.upload-form {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-7);
+}
+
+.upload-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.upload-filename {
+  color: var(--color-text-secondary);
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Findings ---------- */
+
+.findings-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.findings-count {
+  margin: 0 0 var(--space-6);
+  color: var(--color-text-secondary);
+}
+
+.masked-cell {
+  font-family: var(--font-family-mono);
+  white-space: nowrap;
+}
+
+/* ---------- Tables ---------- */
+
+.lp-card__body > .lp-table {
+  overflow-x: auto;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 1100px) {
+  .metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .app-main {
+    padding: var(--space-7);
+  }
+}
+
+@media (max-width: 700px) {
+  .app-rail {
+    flex-basis: 76px;
+  }
+
+  .app-main {
+    gap: var(--space-7);
+    padding: var(--space-6) var(--space-5);
+  }
+
+  .app-account {
+    max-width: 18ch;
+  }
+
+  .page-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .auth-panel {
+    padding: var(--space-7);
+  }
+}
+
+@media (max-width: 460px) {
+  .metric-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-footer {
+    flex-direction: column;
+  }
+}

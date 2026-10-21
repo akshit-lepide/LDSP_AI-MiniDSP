@@ -1,0 +1,20 @@
+# dependencies
+node_modules/
+
+# build output
+.next/
+out/
+build/
+
+# environment — never commit real credentials
+.env
+.env.*
+!.env.example
+
+# local working artifacts
+.docx-media/
+*.tsbuildinfo
+
+# os
+.DS_Store
+Thumbs.db
