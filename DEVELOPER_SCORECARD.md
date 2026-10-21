@@ -6,17 +6,22 @@ UTC timestamps, never estimates. Unverified items receive no objective credit an
 
 | Category | Score | Max |
 |---|---:|---:|
-| Functionality | 24 | 30 |
-| Testing and reliability | 18 | 25 |
+| Functionality | 27 | 30 |
+| Testing and reliability | 19 | 25 |
 | AI orchestration | 11 | 20 |
 | Lepide design compliance | 8 | 10 |
-| Git and deployment | 4 | 10 |
+| Git and deployment | 8 | 10 |
 | Learning and demonstration | 3 | 5 |
-| **Total** | **68** | **100** |
+| **Total** | **76** | **100** |
+
+> **Revision, 2026-10-21T11:40Z** — the first version of this scorecard recorded 68/100 with deployment
+> marked "not done", because no Vercel evidence existed locally or in the repository. The developer then
+> supplied the live URL, which was verified end to end (see Functionality and Git and deployment below).
+> Deployment moved from unverified to verified and the total rose from 68 to 76.
 
 ---
 
-## Functionality — 24 / 30
+## Functionality — 27 / 30
 
 **Evidence**
 
@@ -39,19 +44,36 @@ UTC timestamps, never estimates. Unverified items receive no objective credit an
 - **F-09 Dashboard / F-10 Findings:** metrics, risk distribution, recent scans, type and risk filters,
   masked examples, empty and error states (`src/app/page.tsx`, `src/app/findings/page.tsx`).
 - **F-11 CSV export:** quoted fields, doubled quotes and formula-trigger neutralisation (`src/lib/csv.ts`).
-- **Live end-to-end run, 2026-10-21T10:08:04Z:** signed-in scan of `tests/fixtures/sample-mixed.txt`
+- **Live end-to-end run, 2026-10-21T10:08:04Z (local):** signed-in scan of `tests/fixtures/sample-mixed.txt`
   returned *"Scan complete. Classification: Critical"*, produced 4 masked findings
   (`a***@example.test`, `07******123`, `AB******C`, `************1111`), ignored the Luhn-invalid card,
   persisted to Recent scans, and the rendered page contained no raw email or card value.
+- **F-12 Deployment verified on production, 2026-10-21T11:37Z** at
+  `https://ldsp-ai-mini-dsp.vercel.app/` — this satisfies acceptance check 10:
+  - Site loads with the Lepide-branded sign-in; Supabase environment variables are correctly configured
+    in Vercel (the sign-in control is enabled rather than showing the not-configured state).
+  - Sign-in succeeded and rendered the authenticated dashboard.
+  - `sample-mixed.txt` uploaded and scanned live → *"sample-mixed.txt was classified **Critical**. Only
+    masked examples were saved."*
+  - `/findings` listed **12 masked findings across 4 scans**; `document.body.innerText` contained neither
+    `alex@example.test` nor `4111 1111 1111 1111`.
+  - Dashboard aggregates were correct: 4 files scanned, 12 findings, 3 Critical, risk distribution
+    75% Critical / 25% None.
+  - A developer-run scan of `sample-safe.txt` at 11:17Z is stored as **None**, which also evidences the
+    "clean file → None" half of acceptance check 5 on production.
+  - CSV export control is enabled on the live site.
 
 **Deductions**
 
-- No deployment, so acceptance check 10 (deployed login→upload→findings→export) is unmet.
 - Acceptance check 7 (User B cannot read/write User A's data) was never exercised with two users.
 - Acceptance check 8 (failed finding write leaves no partial scan) was never exercised.
 - The exported CSV file was validated by unit test, not by opening a downloaded file.
+- **Defect observed on production:** immediately after sign-in the dashboard rendered 0 scans even though
+  4 existed; a navigation or reload then showed the correct data. The first post-sign-in history load is
+  unreliable. No data was lost and no error was surfaced to the user, but the first screen a user sees
+  can be wrong.
 
-## Testing and reliability — 18 / 25
+## Testing and reliability — 19 / 25
 
 **Evidence**
 
@@ -70,10 +92,12 @@ UTC timestamps, never estimates. Unverified items receive no objective credit an
 
 **Deductions**
 
-- No automated integration or end-to-end suite (no Vitest/RTL/Playwright); the only end-to-end proof is
-  a single manual browser run.
+- No automated integration or end-to-end suite (no Vitest/RTL/Playwright); end-to-end proof is manual
+  browser verification, performed once locally and once against production.
 - No automated test for RLS isolation or atomic-write rollback — the two highest-value safety claims.
 - No coverage measurement.
+- The post-sign-in dashboard defect reached production, which indicates the authenticated first-load path
+  is not covered by any test.
 
 ## AI orchestration — 11 / 20
 
@@ -120,7 +144,7 @@ UTC timestamps, never estimates. Unverified items receive no objective credit an
 - The design system's `validate-lp-html.mjs` gate was not run (it ships in the design-system repo, which
   is not available locally).
 
-## Git and deployment — 4 / 10
+## Git and deployment — 8 / 10
 
 **Evidence**
 
@@ -133,12 +157,20 @@ UTC timestamps, never estimates. Unverified items receive no objective credit an
   `refs/heads/main = 0cf4234`, and the working tree is in sync.
 - Secret hygiene: `.env.local`, `node_modules` and `.next` excluded; staged content scanned for
   `sb_publishable_`, `sb_secret_`, `service_role`, the project ref and the test password — no matches.
+- **Deployment verified live** at `https://ldsp-ai-mini-dsp.vercel.app/` on 2026-10-21T11:37Z. The
+  developer deployed manually, which leaves no `.vercel` directory or committed config, so it was
+  confirmed by exercising the running site rather than by inspecting the repository. Supabase
+  environment variables are correctly configured in the hosting project, and the full
+  login → upload → scan → findings path works against the same Supabase instance used locally
+  (the 10:03Z local scan is visible in production history).
 
 **Deductions**
 
-- **No Vercel deployment and no live URL.** Half of this category is unmet.
-- Only two commits, both created at the very end, so the history shows no incremental progress.
+- Only three commits, all created at the end of the session, so the history shows no incremental
+  progress and cannot evidence how the work developed.
 - Repository visibility is unconfirmed; the challenge requires a private repository.
+- Deployment is not reproducible from the repository: no `vercel.json`, no documented build settings,
+  and the app lives in `Project/minidsp` rather than the repository root.
 
 ## Learning and demonstration — 3 / 5
 
@@ -170,17 +202,18 @@ UTC timestamps, never estimates. Unverified items receive no objective credit an
    `--use-system-ca` rather than by disabling certificate verification, which would have been the easy
    and insecure shortcut.
 3. **Evidence was kept honest.** Test counts, lint and build results, Git SHAs and timestamps are all
-   real, and every unverified claim — hosted migration, two-user RLS, deployment — is explicitly marked
-   as unverified instead of being implied as done.
+   real, and every unverified claim — two-user RLS, rollback — is explicitly marked as unverified instead
+   of being implied as done. The deployment claim was likewise only credited after the live site was
+   exercised end to end.
 
 ## Three improvements
 
-1. **Deploy and prove the live path.** Vercel deployment is entirely missing, which costs marks in two
-   categories and leaves acceptance check 10 unmet.
-2. **Automate the safety claims.** RLS isolation with two users and atomic-write rollback are the most
+1. **Automate the safety claims.** RLS isolation with two users and atomic-write rollback are the most
    important guarantees in the brief and are currently asserted only by migration text, not by an
    executed test.
-3. **Commit incrementally and use the Instructor chat.** Two end-of-session commits hide the actual
+2. **Fix the first-load defect and cover it.** The production dashboard showed 0 scans immediately after
+   sign-in; the authenticated first-load path has no test.
+3. **Commit incrementally and use the Instructor chat.** Three end-of-session commits hide the actual
    progression, and the prescribed Instructor/Developer challenge loop — the thing the orchestration
    category measures — was never used.
 
@@ -194,13 +227,14 @@ These earned no objective credit in the scores above.
 |---|---|
 | Two-user RLS isolation (acceptance check 7) | **Not tested.** No second account was created. |
 | Atomic-write rollback on a failed finding insert (check 8) | **Not tested.** |
-| Hosted application of both SQL migrations | **Developer-reported only.** The initial schema file is not even present locally; a successful RLS-protected query and a successful masked insert are indirect evidence that both ran. |
-| Vercel deployment / live URL (check 10) | **Not done.** No `.vercel` directory, no deployment attempted. |
+| Hosted application of both SQL migrations | **Indirectly verified.** Production scans insert through the atomic RPC and RLS-protected reads succeed, which requires both migrations; the SQL runs themselves were not observed. |
+| Vercel deployment / live URL (check 10) | **VERIFIED 2026-10-21T11:37Z** at `https://ldsp-ai-mini-dsp.vercel.app/` — sign-in, scan, masked findings and dashboard aggregates all exercised live. |
 | GitHub repository visibility (private required) | **Unconfirmed.** Cannot be determined from a push. |
 | Password recovery email delivery | **Fails at Supabase.** `email_address_invalid` returned by Auth before sending; UI flow is implemented but unproven end to end. |
 | Dark theme, high-contrast theme, keyboard navigation | **Not verified.** |
 | Downloaded CSV opened in a spreadsheet | **Not verified.** Protection is unit-tested only. |
-| 2-minute demo | **Not performed.** |
+| 2-minute demo | **Not performed.** A live URL now exists, so the demo is possible. |
+| Post-sign-in dashboard first load | **Defect observed on production:** shows 0 scans until reload or navigation. |
 | Dev-only npm audit findings (5 high, `braces` via `eslint-config-next`) | **Accepted, not fixed.** Production-only audit is clean; the offered fix is a breaking downgrade to v14. |
 
 ## Outstanding security actions
